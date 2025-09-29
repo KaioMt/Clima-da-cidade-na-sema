@@ -1,5 +1,8 @@
 # ClimaDias
 
+Uma aplicação feita com Angular Material que consome a API do site https://www.visualcrossing.com/
+e mostra na tela os dias de uma determinada cidade durante a semana
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.3.
 
 ## Development server
