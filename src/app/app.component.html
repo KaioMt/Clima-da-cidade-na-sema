@@ -1,0 +1,112 @@
+<div class="app-container">
+  <header class="app-header">
+    <h1 class="app-title">
+      <mat-icon>cloud</mat-icon>
+      {{ title }}
+    </h1>
+    <p class="app-subtitle">Previsão do tempo para qualquer cidade do mundo</p>
+  </header>
+
+  <main class="main-content">
+    <div class="search-container">
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="cityName" 
+          (keypress)="onKeyPress($event)"
+          placeholder="Digite o nome da cidade..."
+          class="city-input"
+          [disabled]="isLoading">
+        
+        <button 
+          (click)="searchWeather()" 
+          class="search-button"
+          [disabled]="isLoading || !cityName.trim()">
+          <mat-icon *ngIf="!isLoading">search</mat-icon>
+          <mat-icon *ngIf="isLoading" class="loading-spinner">hourglass_empty</mat-icon>
+          {{ isLoading ? 'Buscando...' : 'Buscar' }}
+        </button>
+        
+        <button 
+          *ngIf="cityName || weatherData" 
+          (click)="clearSearch()" 
+          class="clear-button"
+          [disabled]="isLoading">
+          <mat-icon>clear</mat-icon> Limpar
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado de carregamento -->
+    <app-loading 
+      [isLoading]="isLoading" 
+      message="Carregando previsão do tempo...">
+    </app-loading>
+
+    <!-- Mensagem de erro -->
+    <app-error 
+      *ngIf="errorMessage && !isLoading"
+      [errorMessage]="errorMessage"
+      [showSuggestions]="true"
+      (retry)="onRetry()"
+      (clear)="onClear()">
+    </app-error>
+
+    <!-- Resultados da previsão -->
+    <div *ngIf="weatherData && !isLoading && !errorMessage" class="weather-results">
+      <div class="location-header">
+        <h2 class="location-name">
+          <mat-icon>location_on</mat-icon>
+          {{ weatherData.resolvedAddress }}
+        </h2>
+      </div>
+
+      <div class="weather-grid">
+        <div 
+          *ngFor="let day of weatherData.days.slice(0, 7); let i = index" 
+          class="weather-card"
+          [class.today]="i === 0"
+          [class.tomorrow]="i === 1">
+          
+          <div class="day-header">
+            <h3 class="day-name">{{ getDayOfWeek(day.datetime) }}</h3>
+            <p class="day-date">{{ formatDate(day.datetime) }}</p>
+          </div>
+
+          <div class="weather-icon-large">
+            <mat-icon>{{ getWeatherIcon(day.icon) }}</mat-icon>
+          </div>
+
+          <div class="temperature-info">
+            <div class="temp-range">
+              <span class="temp-max" [style.color]="getTemperatureColor(day.tempmax)">
+                {{ day.tempmax }}°C
+              </span>
+              <span class="temp-separator">/</span>
+              <span class="temp-min" [style.color]="getTemperatureColor(day.tempmin)">
+                {{ day.tempmin }}°C
+              </span>
+            </div>
+            <p class="temp-avg">Média: {{ day.temp }}°C</p>
+          </div>
+
+          <div class="weather-details">
+            <p class="conditions">{{ day.conditions }}</p>
+            <p class="description" *ngIf="day.description">{{ day.description }}</p>
+            
+            <div class="additional-info">
+              <div class="info-item" *ngIf="day.humidity">
+                <mat-icon>water_drop</mat-icon>
+                <span>{{ day.humidity }}%</span>
+              </div>
+              <div class="info-item" *ngIf="day.windspeed">
+                <mat-icon>air</mat-icon>
+                <span>{{ day.windspeed }} km/h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
